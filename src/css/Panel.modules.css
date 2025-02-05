@@ -1,0 +1,140 @@
+.panel-container {
+    max-width: 850px;
+    max-height: 640px;
+    background: var(--front);
+    border-radius: 10px;
+    padding: 30px 50px 50px 50px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    user-select: none;
+    margin-top: 50px;
+}
+
+.panel-container svg {
+    height: 24px;
+    width: 24px;
+}
+
+.panel-container .btns {
+    display: flex;
+    align-self: center;
+    gap: 60px;
+}
+
+.panel-container .btns button {
+    width: 200px;
+    padding: 10px;
+}
+
+.panel-container .btns #no {
+    background: var(--cancel);
+}
+
+.panel-container .btns #yes {
+    background: var(--good);
+}
+
+.panel-title h1 {
+    flex: 1;
+}
+
+.panel-title .items {
+    display: flex;
+    justify-content: space-evenly;
+    width: 200px;
+}
+
+.panel-title,
+.panel-title div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.panel h2 {
+    text-align: center;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+.panel form {
+    display: flex;
+    gap: 50px;
+    margin-bottom: 20px;
+}
+
+
+.panel form input {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.panel .separador {
+    rotate: 90deg;
+    width: 300px;
+    position: absolute;
+    left: 225px;
+    top: 300px;
+}
+
+.panel-left {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+.panel-right {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    max-height: 350px;
+    overflow: auto;
+}
+
+.panel-right .extra {
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-right .add {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    align-self: center;
+    position: relative;
+}
+
+.panel-right .add svg {
+    cursor: pointer;
+}
+
+.panel-right .add svg:hover {
+    opacity: 0.5;
+}
+
+.panel-right .add svg:active {
+    opacity: 1;
+}
+
+.panel-right #add {
+    rotate: 45deg;
+}
+
+.panel-right .add #remove {
+    fill: var(--cancel);
+}
+
+.panel-right form #capacidade,
+#quantidade {
+    margin-bottom: 20px;
+}

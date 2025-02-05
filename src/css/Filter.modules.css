@@ -1,0 +1,34 @@
+.filter-container{
+    width: 200px;
+    border: 1px solid rgb(0, 0, 0, 0.2);
+    padding: 10px;
+    position: absolute;
+    right: 250px;
+    top: 240px;
+}
+
+.filter-container .filter{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.filter-container .filter svg{
+    fill: var(--text-icon);
+    height: 24px;
+    cursor: pointer;
+}
+
+.filter-container hr{
+    height: 1px;
+    width: 100%;
+    background: black;
+    margin-bottom: 10px;
+}
+
+.filter-options{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}

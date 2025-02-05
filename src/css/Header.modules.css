@@ -1,0 +1,148 @@
+.container {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    background: var(--front);
+    margin-bottom: 50px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+}
+
+.h-menu {
+    position: relative;
+    display: flex;
+}
+
+.h-menu-icon {
+    height: 36px;
+    width: 36px;
+    cursor: pointer;
+    fill: var(--text-icon);
+    transition: 0.1s ease;
+}
+
+.h-menu-icon:hover{
+    fill: var(--form-input);
+}
+
+.h-menu-icon:active{
+    fill: #c9c9c9;
+}
+
+.page-title {
+    font-family: koho;
+    font-size: 2rem;
+    font-weight: normal;
+    user-select: none;
+    position: absolute;
+    left:50%;
+    transform: translateX(-50%);
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    max-width: 180px;
+    width: auto;
+    background: var(--form-input);
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 3px 3px 0  rgba(0, 0, 0, 1);
+    flex-grow: 1;
+}
+
+.search-input {
+    outline: none;
+    background-color: transparent;
+    font-family: koho;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: 0.2s ease;
+    max-width: 130px;
+}
+
+.search-bar:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.search-bar .icon{
+    cursor: pointer;
+}
+
+.search-bar .icon:hover{
+    color: #c9c9c986;
+}
+
+.search-bar .icon:active{
+    color: #c9c9c9;
+}
+
+/* Media queries para responsividade */
+@media (max-width: 768px) {
+
+    .h-menu-icon {
+        width: 25px; /* Reduzir tamanho do ícone */
+        height: 25px;
+    }
+
+    .page-title {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+
+    .search-bar {
+        max-width: 100px;
+        margin-top: 10px;
+    }
+
+    .search-input {
+        
+        max-width: 100px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header.wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .h-menu {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .h-menu-icon {
+        width: 15px; /* Reduzir ainda mais o tamanho do ícone */
+        height: 15px;
+    }
+
+    .page-title {
+        font-size: 18px;
+    }
+
+    .search-bar {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 10px;
+    }
+
+    .search-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .icon {
+        margin-left: 0;
+    }
+}
