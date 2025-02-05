@@ -8,6 +8,7 @@ import { loadUserTheme, updateMissedReservations } from './utils/DBfuncs.js'
 import { Booking } from './pages/Booking.jsx';
 import { Reservations } from './pages/Reservations.jsx';
 import { EditReservation } from './components/EditReservation.jsx';
+import { Details } from './pages/Details.jsx';
 
 
 const PrivateRoute = ({ children }) => {
@@ -48,6 +49,7 @@ const App = () => {
         <Route path='/booking' element={<PrivateRoute><Booking /></PrivateRoute>} />
         <Route path='/reservations' element={<PrivateRoute><Reservations /></PrivateRoute>} />
         <Route path='/editReservation' element={<PrivateRoute><EditReservation /></PrivateRoute>} />
+        <Route path='/details' element={<PrivateRoute><Details /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )

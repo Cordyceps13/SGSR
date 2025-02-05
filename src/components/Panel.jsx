@@ -6,7 +6,7 @@ import { useAuth } from '../services/AuthProvider'
 import { fetchExtraByReservation, fetchReservation, fetchRoom } from '../utils/DBfuncs';
 
 
-export const Panel = ({ goTo = '/home', edit = false }) => {
+export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
     const [reservations, setReservations] = useState([]);
     const [aviso, setAviso] = useState(false);
     const [msg, setMsg] = useState('');
@@ -15,7 +15,7 @@ export const Panel = ({ goTo = '/home', edit = false }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const {
-        id_res ,
+        id_res,
         id,
         nome,
         capacidade,
@@ -33,14 +33,14 @@ export const Panel = ({ goTo = '/home', edit = false }) => {
         extras: existingExtras,
     } = location.state || {}
     const { session } = useAuth();
-    
+
     const [extras, setExtras] = useState(
         existingExtras?.length > 0
-        ? existingExtras.map(extra => ({
-            descricao_extra: extra.extra || '',
-            extra_qt: extra.quantidade || ''
-        }))
-        : [{ descricao_extra: '', extra_qt: '' }]
+            ? existingExtras.map(extra => ({
+                descricao_extra: extra.extra || '',
+                extra_qt: extra.quantidade || ''
+            }))
+            : [{ descricao_extra: '', extra_qt: '' }]
     );
 
     const [formData, setFormData] = useState({
@@ -56,31 +56,31 @@ export const Panel = ({ goTo = '/home', edit = false }) => {
         check_in: false,
         descricao_extra: extra?.descricao_extra || '',
         extra_qt: extra?.extra_qt || 0,
-        
+
     });
     const selectedDateTime = new Date(`${formData.data}T${formData.horaInicio}`);
     const currentDateTime = new Date();
-    
-    
+
+
     useEffect(() => {
         const loadReservations = async () => {
             const { data, error } = await fetchReservation(id_res);
             if (error) throw error;
             setReservations(data || []);
         }
-        
+
         if (selectedDateTime < currentDateTime) {
             setAviso(true);
             setMsg('Deve escolher uma hora de início superior à hora atual');
             return;
         }
-        
+
         if (formData.horaInicio >= formData.horaFim) {
             setAviso(true);
             setMsg('A hora de início deve ser inferior à hora de término');
             return;
         }
-        
+
         const isAvailable = !reservations.some(reservation => {
             if (reservation.id === id_res) return false;
 
@@ -139,7 +139,7 @@ export const Panel = ({ goTo = '/home', edit = false }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        
+
         if (selectedDateTime < currentDateTime) {
             alert('Deve escolher uma hora de início superior à hora atual no painel anterior');
             return;
@@ -348,9 +348,17 @@ export const Panel = ({ goTo = '/home', edit = false }) => {
         }
     };
 
+
+    const confirm = async (id_res) =>{
+        const { data, error } = await supabase.from('reservas').update({ estado: 'confirmada' }).eq('id', id_res).select('*');
+        if (error) throw error;
+        alert('Reserva confirmada com sucesso!');
+        navigate('/reservations');
+    }
+
     return (
         <>
-            {aviso && <p className='aviso'>{msg}</p>}
+            {(aviso && !session.user.tipo) && <p className='aviso'>{msg}</p>}
             <div className="panel-container">
                 <div className="panel-title">
                     <h1 title='Nome da sala'>{nome}</h1>
@@ -447,10 +455,15 @@ export const Panel = ({ goTo = '/home', edit = false }) => {
                     </form>
                 </div>
                 <div className="btns">
-                    {edit ?
-                        <button id='no' onClick={() => { window.confirm('Pretende cancelar a edição da reserva?') && navigate(goTo) }}>Cancelar</button> :
-                        <button id='no' onClick={() => { window.confirm('Pretende cancelar a reserva?') && navigate(goTo) }}>Cancelar</button>}
-                    <button id='yes' type='submit' onClick={!edit ? handleSubmit : () => handleEdit(id_res)}>Submeter</button>
+                    {edit && <button id='no' onClick={() => { window.confirm('Pretende cancelar a edição da reserva?') && navigate(goTo) }}>Cancelar</button>}
+                    {!details ?
+                        <button id='yes' type='submit' onClick={!edit ? handleSubmit : () => handleEdit(id_res)}>Submeter</button>
+                        :
+                        <>
+                            <button id='no' onClick={() => { window.confirm(`Pretende cancelar esta reserva?`) && navigate('/reservations') }}>Cancelar</button>
+                            <button id='yes' onClick={() => { window.confirm(`Pretende confirmar esta reserva?`) && confirm(id_res) }}>Confirmar</button>
+                        </>
+                    }
                 </div>
             </div>
         </>

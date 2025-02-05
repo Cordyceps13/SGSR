@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import '../css/RoomList.modules.css';
 import { fetchReservation, fetchRoom } from "../utils/DBfuncs";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
-const RoomList = ({ title = '', filters = true }) => {
+const RoomList = () => {
     let aviso = '';
     const [rooms, setRooms] = useState([]);
     const [reservations, setReservations] = useState([]);
@@ -143,8 +143,7 @@ const RoomList = ({ title = '', filters = true }) => {
     return (
         <>
             <div className="list-container">
-                <h1>{title}</h1>
-                {filters &&
+                <h1>{'Iniciar Reserva'}</h1>
                     <div className="filters">
                         <input title="Intoduzir número de pessoas" type="number" placeholder="Num Pessoas" onChange={(e) => (setMinCapacity(e.target.value))} />
                         <input title="Escolher data" type="date" id="date" min={dataAtual} value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
@@ -155,7 +154,6 @@ const RoomList = ({ title = '', filters = true }) => {
                             <input onChange={(e) => setEndTime(e.target.value)} title="Escolher hora de término" type="time" value={endTime} />
                         </div>
                     </div>
-                }
                 <div className=" item-list">
                     <div className="list-title-container">
                         {/* {notification > 0 && <Notification notification={notification} className='item-notification' />} */}

@@ -2,11 +2,11 @@ import { useState } from 'react';
 import Header from '../components/Header.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import RoomList from '../components/RoomList.jsx';
+import { useAuth } from '../services/AuthProvider.jsx';
+import { ReservationList } from '../components/ReservationList';
 
 const Home = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    // const [isOpen, setIsOpen] = useState(false);
-
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -14,8 +14,9 @@ const Home = () => {
 
     return (
         <>
-            <Header title='Salas' openSidebar={toggleSidebar} />
-            <RoomList title='Iniciar Reserva' ></RoomList>
+           
+            <Header title='Reservar' openSidebar={toggleSidebar} />
+            <RoomList  ></RoomList>
             <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar}></Sidebar>
         </>
     )

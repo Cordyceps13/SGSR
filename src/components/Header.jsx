@@ -1,5 +1,5 @@
 import '../css/Header.modules.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Notification from './Notification.jsx';
 import { useAuth } from '../services/AuthProvider.jsx';
 

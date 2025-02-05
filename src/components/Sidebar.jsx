@@ -63,21 +63,16 @@ const Sidebar = ({ isSidebarOpen, closeSidebar }) => {
                 <div className='options'>
                     <ul>
                         {session && userData?.tipo ? <>
-                            <li>
-                                Gerir Reservas
-                                {/* <Notification/> */}
-                            </li>
+                            <li onClick={() => { navigate('/reservations'); closeSidebar(); }}>Gerir Reservas</li>
                             <li>Gerir Utilizadores</li>
                             <li>Gerir Salas</li>
                             <li>Gerir Equipamentos</li>
-                            <li>Fazer Reserva</li>
+                            <li onClick={() => {navigate('/home'); closeSidebar();}}>Fazer Reserva</li>
                         </> :
                             <>
                                 <li onClick={() => { navigate('/reservations'); closeSidebar(); }}>
                                     As minhas Reservas
-                                    {/* <Notification/> */}
                                 </li>
-                                <li>Definições</li>
                             </>}
                         <li className='theme' id='theme' title='Alternar Tema' onClick={toggleTheme}>
                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

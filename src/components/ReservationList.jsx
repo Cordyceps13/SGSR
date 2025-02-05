@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import '../css/RoomList.modules.css';
-import Notification from "./Notification";
-import { fetchExtraByReservation, fetchReservationByUser, fetchRoomByReservation } from "../utils/DBfuncs";
+import { fetchExtraByReservation, fetchReservation, fetchReservationByUser, fetchRoomByReservation } from "../utils/DBfuncs";
 import { useAuth } from "../services/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/DB_API";
@@ -13,12 +12,12 @@ export const ReservationList = ({ title = '' }) => {
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState('Todas');
-    const { session } = useAuth();
     const [extras, setExtras] = useState([]);
+    const { session } = useAuth();
     const userID = session?.user?.id;
     const navigate = useNavigate();
 
-    useEffect(() => {
+    !session.user.tipo ? useEffect(() => {
 
         const loadReservations = async () => {
             const { data, error } = await fetchReservationByUser(userID);
@@ -32,7 +31,24 @@ export const ReservationList = ({ title = '' }) => {
         }
 
         loadReservations();
-    }, [userID]);
+    }, [userID])
+
+        :
+        useEffect(() => {
+
+            const loadReservations = async () => {
+                const { data, error } = await fetchReservation();
+                if (data) {
+                    setReservations(data);
+                    setLoading(false);
+                    return { data };
+                }
+                console.log('Erro ao carregar reservas');
+                return { error };
+            }
+
+            loadReservations();
+        }, [userID])
 
     useEffect(() => {
         setLoading(true);
@@ -69,7 +85,7 @@ export const ReservationList = ({ title = '' }) => {
     const filteredRooms = rooms.filter(room => {
         if (!selected || selected === 'Todas') return true;
         const estado = selected.at(0).toUpperCase() + selected.substring(1) + 's';
-        aviso = `Não tem reservas ${estado}`
+        aviso = session.user.tipo ? `Não existem reservas ${estado} de momento` : `Não tem reservas ${estado}`
         return room.reservation.estado.toLowerCase() === selected.toLowerCase();
     });
 
@@ -160,6 +176,55 @@ export const ReservationList = ({ title = '' }) => {
         navigate(0);
     }
 
+    const handleConfirm = async (id) => {
+        const { data, error } = await supabase.from('reservas').update({ estado: 'confirmada' }).eq('id', id);
+        if (error) {
+            console.error('Erro ao confirmar reserva:', error);
+            return;
+        }
+        alert('Reserva confirmada com sucesso!');
+        navigate(0);
+        return { data };
+    }
+
+    const seeDetails = (
+        id_res,
+        id,
+        nome,
+        capacidade,
+        tv,
+        quadro,
+        selectedDate,
+        startTime,
+        endTime,
+        minCapacity,
+        motivo,
+        descricao,
+        descricao_extra,
+        extra_qt,
+        extra,
+    ) => {
+        navigate('/details', {
+            state: {
+                id_res,
+                id,
+                nome,
+                capacidade,
+                tv,
+                quadro,
+                selectedDate,
+                startTime,
+                endTime,
+                minCapacity,
+                motivo,
+                descricao,
+                descricao_extra,
+                extra_qt,
+                extra,
+            }
+        });
+    }
+
     if (loading) {
         return <p className="loading">A carregar...</p>;
     };
@@ -196,7 +261,6 @@ export const ReservationList = ({ title = '' }) => {
                 </div>
                 <div className=" item-list">
                     <div className="list-title-container">
-                        {/* {notification > 0 && <Notification notification={notification} className='item-notification' />} */}
                     </div>
                     {((reservations.length <= 0 && !loading) || filteredRooms.length <= 0) && <p className="aviso">{aviso}</p>}
                     {selected === 'Todas' ? (
@@ -204,7 +268,22 @@ export const ReservationList = ({ title = '' }) => {
                             <div key={status}>
                                 <h3 className="status-title">{status.at(0).toUpperCase() + status.substring(1).toLowerCase() + 's'}</h3><br />
                                 {rooms.map((room, index) => (
-                                    <div key={index} className="item reservation">
+                                    <div key={index} className={`item ${!session.user.tipo && 'reservation'}`} id="item" onClick={session.user.tipo && (() => seeDetails(room.reservation.id,
+                                        room.id,
+                                        room.nome,
+                                        room.reservation.num_pessoas,
+                                        room.tv,
+                                        room.quadro,
+                                        room.reservation.data,
+                                        room.reservation.h_inicio,
+                                        room.reservation.h_fim,
+                                        room.reservation.num_pessoas,
+                                        room.reservation.motivo,
+                                        room.reservation.descricao,
+                                        room.reservation.descricao_extra,
+                                        room.reservation.extra_qt,
+                                        room.reservation.extra
+                                    ))} >
                                         <img title={room.nome} src={`../src/assets/imgs/${room.foto}`} alt={room.nome || 'Imagem indisponível'} />
                                         <div className="details">
                                             <div title="Título da reunião" className="item-title">{room.reservation.motivo ? room.reservation.motivo : 'Sem título'}</div>
@@ -272,7 +351,8 @@ export const ReservationList = ({ title = '' }) => {
                                                     </svg>
                                                 </div>
                                             }
-                                            {(room.reservation.estado === 'pendente' || room.reservation.estado === 'confirmada') &&
+                                            {((room.reservation.estado === 'pendente' || room.reservation.estado === 'confirmada') && !session.user.tipo) &&
+
 
                                                 <div title="Editar reserva" className="edit" onClick={() => handleClick(
                                                     room.id,
@@ -299,13 +379,12 @@ export const ReservationList = ({ title = '' }) => {
                                                     </svg>
                                                 </div>
                                             }
-                                            {room.reservation.estado === 'confirmada' &&
-                                                <div className="ativar" title="Ativar reserva" onClick={() => handleCheckIn(room.reservation.id)}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 507.506 507.506" xmlSpace="preserve" width="512" height="512">
-                                                        <g>
-                                                            <path d="M163.865,436.934c-14.406,0.006-28.222-5.72-38.4-15.915L9.369,304.966c-12.492-12.496-12.492-32.752,0-45.248l0,0   c12.496-12.492,32.752-12.492,45.248,0l109.248,109.248L452.889,79.942c12.496-12.492,32.752-12.492,45.248,0l0,0   c12.492,12.496,12.492,32.752,0,45.248L202.265,421.019C192.087,431.214,178.271,436.94,163.865,436.934z" />
-                                                        </g>
-                                                    </svg>
+                                            {((room.reservation.estado === 'confirmada' && !session.user.tipo) || (room.reservation.estado === 'pendente' && session.user.tipo)) &&
+                                                <div className="ativar" title={session.user.tipo ? "Confirmar reserva" : "Ativar reserva"} onClick={session.user.tipo ? () => handleConfirm(room.reservation.id) : () => handleCheckIn(room.reservation.id)}>                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 507.506 507.506" xmlSpace="preserve" width="512" height="512">
+                                                    <g>
+                                                        <path d="M163.865,436.934c-14.406,0.006-28.222-5.72-38.4-15.915L9.369,304.966c-12.492-12.496-12.492-32.752,0-45.248l0,0   c12.496-12.492,32.752-12.492,45.248,0l109.248,109.248L452.889,79.942c12.496-12.492,32.752-12.492,45.248,0l0,0   c12.492,12.496,12.492,32.752,0,45.248L202.265,421.019C192.087,431.214,178.271,436.94,163.865,436.934z" />
+                                                    </g>
+                                                </svg>
                                                 </div>
                                             }
                                         </div>
@@ -316,7 +395,22 @@ export const ReservationList = ({ title = '' }) => {
 
                     ) : (
                         filteredRooms.map((room, index) =>
-                            <div key={index} className="item">
+                            <div key={index} className={`item ${!session.user.tipo && 'reservation'}`} id="filtered-item" onClick={session.user.tipo  && (() => seeDetails( room.reservation.id,
+                                                                                                                                                                            room.id,
+                                                                                                                                                                            room.nome,
+                                                                                                                                                                            room.reservation.num_pessoas,
+                                                                                                                                                                            room.tv,
+                                                                                                                                                                            room.quadro,
+                                                                                                                                                                            room.reservation.data,
+                                                                                                                                                                            room.reservation.h_inicio,
+                                                                                                                                                                            room.reservation.h_fim,
+                                                                                                                                                                            room.reservation.num_pessoas,
+                                                                                                                                                                            room.reservation.motivo,
+                                                                                                                                                                            room.reservation.descricao,
+                                                                                                                                                                            room.reservation.descricao_extra,
+                                                                                                                                                                            room.reservation.extra_qt,
+                                                                                                                                                                            room.reservation.extra
+                                                                                                                                                                        ))} >
                                 <img title={room.nome} src={`../src/assets/imgs/${room.foto}`} alt={room.nome || 'Imagem indisponível'} />
                                 <div className="details">
                                     <div title="Título da reunião" className="item-title">{room.reservation.motivo ? room.reservation.motivo : 'Sem título'}</div>
@@ -384,7 +478,7 @@ export const ReservationList = ({ title = '' }) => {
                                             </svg>
                                         </div>
                                     }
-                                    {(room.reservation.estado === 'pendente' || room.reservation.estado === 'confirmada') &&
+                                    {((room.reservation.estado === 'pendente' || room.reservation.estado === 'confirmada') && !session.user.tipo) &&
 
                                         <div title="Editar reserva" className="edit" onClick={() => handleClick(
                                             room.id,
@@ -411,8 +505,8 @@ export const ReservationList = ({ title = '' }) => {
                                             </svg>
                                         </div>
                                     }
-                                    {room.reservation.estado === 'confirmada' &&
-                                        <div className="ativar" title="Ativar reserva" onClick={() => handleCheckIn(room.reservation.id)}>
+                                    {((room.reservation.estado === 'confirmada' && !session.user.tipo) || (room.reservation.estado === 'pendente' && session.user.tipo)) &&
+                                        <div className="ativar" title={session.user.tipo ? "Confirmar reserva" : "Ativar reserva"} onClick={session.user.tipo ? () => handleConfirm(room.reservation.id) : () => handleCheckIn(room.reservation.id)}>
                                             <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 507.506 507.506" xmlSpace="preserve" width="512" height="512">
                                                 <g>
                                                     <path d="M163.865,436.934c-14.406,0.006-28.222-5.72-38.4-15.915L9.369,304.966c-12.492-12.496-12.492-32.752,0-45.248l0,0   c12.496-12.492,32.752-12.492,45.248,0l109.248,109.248L452.889,79.942c12.496-12.492,32.752-12.492,45.248,0l0,0   c12.492,12.496,12.492,32.752,0,45.248L202.265,421.019C192.087,431.214,178.271,436.94,163.865,436.934z" />
@@ -426,9 +520,11 @@ export const ReservationList = ({ title = '' }) => {
                     }
                 </div>
             </div>
-            <svg onClick={() => navigate('/home')} id='back-arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512">
-                <path fill="currentColor" d="M10.6,12.71a1,1,0,0,1,0-1.42l4.59-4.58a1,1,0,0,0,0-1.42,1,1,0,0,0-1.41,0L9.19,9.88a3,3,0,0,0,0,4.24l4.59,4.59a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" />
-            </svg>
+            {!session.user.tipo &&
+                <svg onClick={() => navigate('/home')} id='back-arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512">
+                    <path fill="currentColor" d="M10.6,12.71a1,1,0,0,1,0-1.42l4.59-4.58a1,1,0,0,0,0-1.42,1,1,0,0,0-1.41,0L9.19,9.88a3,3,0,0,0,0,4.24l4.59,4.59a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" />
+                </svg>
+            }
         </>
     )
 }

@@ -12,7 +12,7 @@ const AuthForm = () => {
         pass: '',
         rePass: ''
     });
-    const { loginUser } = useAuth();
+    const { loginUser, session } = useAuth();
     const navigate = useNavigate();
 
     const toggleForm = () => {
@@ -48,7 +48,7 @@ const AuthForm = () => {
             return { error }
         }
         loginUser(data)
-        navigate('/home');
+        session.user.tipo ? navigate('/reservations') : navigate('/home');
     };
 
     return (
