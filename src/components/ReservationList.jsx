@@ -161,8 +161,8 @@ export const ReservationList = ({ title = '' }) => {
             console.error('Erro ao confirmar reserva:', error);
             return;
         }
-        alert('Reserva confirmada com sucesso!');
         navigate(0);
+        alert('Reserva ativada com sucesso!');
         return { data };
     }
 
@@ -182,8 +182,8 @@ export const ReservationList = ({ title = '' }) => {
             console.error('Erro ao confirmar reserva:', error);
             return;
         }
-        alert('Reserva confirmada com sucesso!');
         navigate(0);
+        alert('Reserva confirmada com sucesso!');
         return { data };
     }
 
@@ -254,6 +254,11 @@ export const ReservationList = ({ title = '' }) => {
                         <input type="radio" id="expirada" name="satus" value={'Expirada'} checked={selected === 'Expirada'} onChange={() => toggleSelect('Expirada')} />
                         <label htmlFor="expirada">Expiradas</label>
                     </div>
+
+                    <div>
+                        <input type="radio" id="concluida" name="satus" value={'Concluida'} checked={selected === 'Concluida'} onChange={() => toggleSelect('Concluida')} />
+                        <label htmlFor="concluida">Concluídas</label>
+                    </div>
                     <div>
                         <input type="radio" id="todas" name="satus" value={'Todas'} checked={selected === 'Todas'} onChange={() => toggleSelect('Todas')} />
                         <label htmlFor="todas">Todas</label>
@@ -268,7 +273,7 @@ export const ReservationList = ({ title = '' }) => {
                             <div key={status}>
                                 <h3 className="status-title">{status.at(0).toUpperCase() + status.substring(1).toLowerCase() + 's'}</h3><br />
                                 {rooms.map((room, index) => (
-                                    <div key={index} className={`item ${!session.user.tipo && 'reservation'}`} id="item" onClick={session.user.tipo && (() => seeDetails(room.reservation.id,
+                                    <div key={index} className={`item ${(session.user.tipo && (room.reservation.estado !== 'pendente' && room.reservation.estado !== 'confirmada')) && 'reservation'}`} id="item" onClick={(session.user.tipo && room.reservation.estado !== 'expirada' && room.reservation.estado !== 'cancelada' && room.reservation.estado !== 'ativa' && room.reservation.estado !== 'concluida') ? (() => seeDetails(room.reservation.id,
                                         room.id,
                                         room.nome,
                                         room.reservation.num_pessoas,
@@ -283,7 +288,7 @@ export const ReservationList = ({ title = '' }) => {
                                         room.reservation.descricao_extra,
                                         room.reservation.extra_qt,
                                         room.reservation.extra
-                                    ))} >
+                                    )) : undefined} >
                                         <img title={room.nome} src={`../src/assets/imgs/${room.foto}`} alt={room.nome || 'Imagem indisponível'} />
                                         <div className="details">
                                             <div title="Título da reunião" className="item-title">{room.reservation.motivo ? room.reservation.motivo : 'Sem título'}</div>
@@ -343,9 +348,9 @@ export const ReservationList = ({ title = '' }) => {
                                                     </svg>
                                                 </div>
                                             }
-                                            {(room.reservation.estado === 'cancelada' || room.reservation.estado === 'expirada') &&
+                                            {(room.reservation.estado === 'cancelada' || room.reservation.estado === 'expirada' || room.reservation.estado === 'concluida') &&
 
-                                                <div title="Eliminar reserva" className="no" onClick={() => window.confirm(`Pretende Eliminar a reserva "${room.reservation.motivo || 'Sem título'}"?`) && handleDelete(room.reservation.id)}>
+                                                <div title="Eliminar reserva" className="no" onClick={(e) => { e.stopPropagation(); window.confirm(`Pretende Eliminar a reserva "${room.reservation.motivo || 'Sem título'}"?`) && handleDelete(room.reservation.id, e) }}>
                                                     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="512" height="512">
                                                         <path d="m16.561,9.561l-2.439,2.439,2.439,2.439-2.121,2.121-2.439-2.439-2.439,2.439-2.121-2.121,2.439-2.439-2.439-2.439,2.121-2.121,2.439,2.439,2.439-2.439,2.121,2.121Zm7.439,2.439c0,6.617-5.383,12-12,12S0,18.617,0,12,5.383,0,12,0s12,5.383,12,12Zm-3,0c0-4.963-4.037-9-9-9S3,7.037,3,12s4.038,9,9,9,9-4.037,9-9Z" />
                                                     </svg>
@@ -379,8 +384,8 @@ export const ReservationList = ({ title = '' }) => {
                                                     </svg>
                                                 </div>
                                             }
-                                            {((room.reservation.estado === 'confirmada' && !session.user.tipo) || (room.reservation.estado === 'pendente' && session.user.tipo)) &&
-                                                <div className="ativar" title={session.user.tipo ? "Confirmar reserva" : "Ativar reserva"} onClick={session.user.tipo ? () => handleConfirm(room.reservation.id) : () => handleCheckIn(room.reservation.id)}>                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 507.506 507.506" xmlSpace="preserve" width="512" height="512">
+                                            {((room.reservation.estado === 'confirmada' && (!session.user.tipo || (room.reservation.id_u === 2))) || (room.reservation.estado === 'pendente' && session.user.tipo)) &&
+                                                <div className="ativar" title={(session.user.tipo && (room.reservation.id_u !== 2 || room.reservation.estado === 'pendente')) ? "Confirmar reserva" : "Ativar reserva"} onClick={(e) => { e.stopPropagation(); (session.user.tipo && (room.reservation.id_u !== 2 || room.reservation.estado === 'pendente')) ? handleConfirm(room.reservation.id) : handleCheckIn(room.reservation.id) }}>                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 507.506 507.506" xmlSpace="preserve" width="512" height="512">
                                                     <g>
                                                         <path d="M163.865,436.934c-14.406,0.006-28.222-5.72-38.4-15.915L9.369,304.966c-12.492-12.496-12.492-32.752,0-45.248l0,0   c12.496-12.492,32.752-12.492,45.248,0l109.248,109.248L452.889,79.942c12.496-12.492,32.752-12.492,45.248,0l0,0   c12.492,12.496,12.492,32.752,0,45.248L202.265,421.019C192.087,431.214,178.271,436.94,163.865,436.934z" />
                                                     </g>
@@ -395,22 +400,22 @@ export const ReservationList = ({ title = '' }) => {
 
                     ) : (
                         filteredRooms.map((room, index) =>
-                            <div key={index} className={`item ${!session.user.tipo && 'reservation'}`} id="filtered-item" onClick={session.user.tipo  && (() => seeDetails( room.reservation.id,
-                                                                                                                                                                            room.id,
-                                                                                                                                                                            room.nome,
-                                                                                                                                                                            room.reservation.num_pessoas,
-                                                                                                                                                                            room.tv,
-                                                                                                                                                                            room.quadro,
-                                                                                                                                                                            room.reservation.data,
-                                                                                                                                                                            room.reservation.h_inicio,
-                                                                                                                                                                            room.reservation.h_fim,
-                                                                                                                                                                            room.reservation.num_pessoas,
-                                                                                                                                                                            room.reservation.motivo,
-                                                                                                                                                                            room.reservation.descricao,
-                                                                                                                                                                            room.reservation.descricao_extra,
-                                                                                                                                                                            room.reservation.extra_qt,
-                                                                                                                                                                            room.reservation.extra
-                                                                                                                                                                        ))} >
+                            <div key={index} className={`item ${(session.user.tipo && (room.reservation.estado !== 'pendente' && room.reservation.estado !== 'confirmada')) && 'reservation'}`} id="filtered-item" onClick={(session.user.tipo && room.reservation.estado !== 'expirada' && room.reservation.estado !== 'cancelada' && room.reservation.estado !== 'ativa' && room.reservation.estado !== 'concluida') && (() => seeDetails(room.reservation.id,
+                                room.id,
+                                room.nome,
+                                room.reservation.num_pessoas,
+                                room.tv,
+                                room.quadro,
+                                room.reservation.data,
+                                room.reservation.h_inicio,
+                                room.reservation.h_fim,
+                                room.reservation.num_pessoas,
+                                room.reservation.motivo,
+                                room.reservation.descricao,
+                                room.reservation.descricao_extra,
+                                room.reservation.extra_qt,
+                                room.reservation.extra
+                            ))} >
                                 <img title={room.nome} src={`../src/assets/imgs/${room.foto}`} alt={room.nome || 'Imagem indisponível'} />
                                 <div className="details">
                                     <div title="Título da reunião" className="item-title">{room.reservation.motivo ? room.reservation.motivo : 'Sem título'}</div>
@@ -470,7 +475,7 @@ export const ReservationList = ({ title = '' }) => {
                                             </svg>
                                         </div>
                                     }
-                                    {(room.reservation.estado === 'cancelada' || room.reservation.estado === 'expirada') &&
+                                    {(room.reservation.estado === 'cancelada' || room.reservation.estado === 'expirada' || room.reservation.estado === 'concluida') &&
 
                                         <div title="Eliminar reserva" className="no" onClick={() => window.confirm(`Pretende Eliminar a reserva "${room.reservation.motivo || 'Sem título'}"?`) && handleDelete(room.reservation.id)}>
                                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="512" height="512">

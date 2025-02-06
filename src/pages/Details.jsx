@@ -11,7 +11,7 @@ export const Details = () => {
     }
     return (
         <>
-            <Header title='Reservar' openSidebar={toggleSidebar} />
+            <Header title='Gerir Reservas' openSidebar={toggleSidebar} />
             <Panel details={true} />
             <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar}></Sidebar>
         </>

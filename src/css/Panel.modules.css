@@ -138,3 +138,9 @@
 #quantidade {
     margin-bottom: 20px;
 }
+
+.back{
+    position: absolute;
+    left: 50%;
+    bottom:-20px
+}

@@ -4,7 +4,7 @@ import Home from './pages/Home.jsx';
 import Header from './components/Header.jsx';
 import AuthForm from './components/AuthForm.jsx';
 import { useAuth } from './services/AuthProvider.jsx';
-import { loadUserTheme, updateMissedReservations } from './utils/DBfuncs.js'
+import { loadUserTheme, updateMissedReservations, concludeReservation } from './utils/DBfuncs.js'
 import { Booking } from './pages/Booking.jsx';
 import { Reservations } from './pages/Reservations.jsx';
 import { EditReservation } from './components/EditReservation.jsx';
@@ -22,6 +22,20 @@ const PrivateRoute = ({ children }) => {
         return;
       } else {
         console.log('Reservas expiradas atualizadas:', data);
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const { data, error } = await concludeReservation();
+      if (error) {
+        console.error('Erro ao definir reservas concluídas:', error);
+        return;
+      } else {
+        console.log('Reservas concluídas atualizadas:', data);
       }
     }, 60000);
 

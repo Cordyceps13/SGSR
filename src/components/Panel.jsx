@@ -348,13 +348,23 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
         }
     };
 
-
-    const confirm = async (id_res) =>{
+    const confirm = async (id_res) => {
         const { data, error } = await supabase.from('reservas').update({ estado: 'confirmada' }).eq('id', id_res).select('*');
         if (error) throw error;
         alert('Reserva confirmada com sucesso!');
         navigate('/reservations');
     }
+    const handleCancel = async (id) => {
+        const { data, error } = await supabase.from('reservas').update({ estado: 'cancelada' }).eq('id', id);
+        if (error) {
+            console.error('Erro ao cancelar reserva:', error);
+            return;
+        }
+        alert('Reserva cancelada com sucesso!');
+        navigate('/reservations');
+        return { data };
+    }
+
 
     return (
         <>
@@ -418,53 +428,66 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                             <label htmlFor="horaFim">Hora fim</label>
                             <input readOnly={!edit} id='hora-fim' name="horaFim" type="time" value={formData.horaFim} onChange={handleOnChange} />
                             <label htmlFor="num_pessoas">Número de participantes</label>
-                            <input id='num_pessoas' name="num_pessoas" type="number" onBlur={(e) => validarNumero(e)} value={formData.num_pessoas} onChange={handleOnChange} min={1} max={capacidade} required />
+                            <input readOnly={details} id='num_pessoas' name="num_pessoas" type="number" onBlur={(e) => validarNumero(e)} value={formData.num_pessoas} onChange={handleOnChange} min={1} max={capacidade} required />
                         </div>
                         <hr className='separador' />
                         <div className="panel-right">
                             <h2>Opcional</h2>
                             <label htmlFor="motivo">Motivo</label>
-                            <input id='motivo' name="motivo" type="text" value={formData.motivo ? formData.motivo : motivo || ''} onChange={handleOnChange} />
+                            <input readOnly={details} id='motivo' name="motivo" type="text" value={formData.motivo ? formData.motivo : motivo || ''} onChange={handleOnChange} />
                             <label htmlFor="descricao">Descricao</label>
-                            <input id='descricao' name="descricao" type="text" value={descricao ? descricao : formData.descricao} onChange={handleOnChange} />
+                            <input readOnly={details} id='descricao' name="descricao" type="text" value={descricao ? descricao : formData.descricao} onChange={handleOnChange} />
                             <h2>{`Extras (snacks/equipamentos)`}</h2>
                             {extras.map((extra, index) => (
                                 <div className='extra' ref={index === extras.length - 1 ? lastExtraRef : null} key={index}>
                                     <label htmlFor={`descricao_extra_${index}`}>Extra</label>
-                                    <input id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={details} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
                                     <label htmlFor={`extra_qt_${index}`}>Quantidade</label>
-                                    <input id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={details} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
                                 </div>
                             ))}
-                            <div className='add' >
-                                {extras.length > 1 &&
-                                    <div title='Remover Extra'>
-                                        <svg fill='currentColor' id='remove' onClick={removeExtra} xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 24 24" width="24" height="24">
-                                            <path d="m16.561,9.561l-2.439,2.439,2.439,2.439-2.121,2.121-2.439-2.439-2.439,2.439-2.121-2.121,2.439-2.439-2.439-2.439,2.121-2.121,2.439,2.439,2.439-2.439,2.121,2.121Zm7.439,2.439c0,6.617-5.383,12-12,12S0,18.617,0,12,5.383,0,12,0s12,5.383,12,12Zm-3,0c0-4.963-4.037-9-9-9S3,7.037,3,12s4.038,9,9,9,9-4.037,9-9Z" />
+                            {!details &&
+                                <div className='add' >
+                                    {(extras.length > 1) &&
+                                        <div title='Remover Extra'>
+                                            <svg fill='currentColor' id='remove' onClick={removeExtra} xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 24 24" width="24" height="24">
+                                                <path d="m16.561,9.561l-2.439,2.439,2.439,2.439-2.121,2.121-2.439-2.439-2.439,2.439-2.121-2.121,2.439-2.439-2.439-2.439,2.121-2.121,2.439,2.439,2.439-2.439,2.121,2.121Zm7.439,2.439c0,6.617-5.383,12-12,12S0,18.617,0,12,5.383,0,12,0s12,5.383,12,12Zm-3,0c0-4.963-4.037-9-9-9S3,7.037,3,12s4.038,9,9,9,9-4.037,9-9Z" />
+                                            </svg>
+                                        </div>
+                                    }
+                                    <div title='Adicionar Extra'>
+                                        <svg id='add' onClick={addExtra} xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 24 24" width="24" height="24">
+                                            <path fill='currentColor' d="m16.561,9.561l-2.439,2.439,2.439,2.439-2.121,2.121-2.439-2.439-2.439,2.439-2.121-2.121,2.439-2.439-2.439-2.439,2.121-2.121,2.439,2.439,2.439-2.439,2.121,2.121Zm7.439,2.439c0,6.617-5.383,12-12,12S0,18.617,0,12,5.383,0,12,0s12,5.383,12,12Zm-3,0c0-4.963-4.037-9-9-9S3,7.037,3,12s4.038,9,9,9,9-4.037,9-9Z" />
                                         </svg>
                                     </div>
-                                }
-                                <div title='Adicionar Extra'>
-                                    <svg id='add' onClick={addExtra} xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 24 24" width="24" height="24">
-                                        <path fill='currentColor' d="m16.561,9.561l-2.439,2.439,2.439,2.439-2.121,2.121-2.439-2.439-2.439,2.439-2.121-2.121,2.439-2.439-2.439-2.439,2.121-2.121,2.439,2.439,2.439-2.439,2.121,2.121Zm7.439,2.439c0,6.617-5.383,12-12,12S0,18.617,0,12,5.383,0,12,0s12,5.383,12,12Zm-3,0c0-4.963-4.037-9-9-9S3,7.037,3,12s4.038,9,9,9,9-4.037,9-9Z" />
-                                    </svg>
                                 </div>
-                            </div>
+                            }
 
                         </div>
                     </form>
                 </div>
                 <div className="btns">
                     {edit && <button id='no' onClick={() => { window.confirm('Pretende cancelar a edição da reserva?') && navigate(goTo) }}>Cancelar</button>}
-                    {!details ?
-                        <button id='yes' type='submit' onClick={!edit ? handleSubmit : () => handleEdit(id_res)}>Submeter</button>
+                    {details ?
+                        <>
+                            <button id='no' onClick={() => { window.confirm('Pretende alterar o estado desta reserva para "Cancelada"?') && handleCancel(id_res) }}>Cancelar</button>
+                            <button id='yes' onClick={() => { window.confirm(`'Pretende alterar o estado desta reserva para "Confirmada"?`) && confirm(id_res) }}>Confirmar</button>
+                        </>
                         :
                         <>
-                            <button id='no' onClick={() => { window.confirm(`Pretende cancelar esta reserva?`) && navigate('/reservations') }}>Cancelar</button>
-                            <button id='yes' onClick={() => { window.confirm(`Pretende confirmar esta reserva?`) && confirm(id_res) }}>Confirmar</button>
+                            <button id='no' onClick={() => { window.confirm(`Pretende cancelar a reserva?`) && navigate('/home') }}>Cancelar</button>
+                            <button id='yes' type='submit' onClick={!edit ? handleSubmit : () => handleEdit(id_res)}>Submeter</button>
                         </>
                     }
                 </div>
+
+                {session.user.tipo &&
+                    <div className='back'>
+                        <svg onClick={() => navigate('/reservations')} id='back-arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512">
+                            <path fill="currentColor" d="M10.6,12.71a1,1,0,0,1,0-1.42l4.59-4.58a1,1,0,0,0,0-1.42,1,1,0,0,0-1.41,0L9.19,9.88a3,3,0,0,0,0,4.24l4.59,4.59a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" />
+                        </svg>
+                    </div>
+                }
             </div>
         </>
     )

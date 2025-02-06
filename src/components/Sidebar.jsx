@@ -66,7 +66,6 @@ const Sidebar = ({ isSidebarOpen, closeSidebar }) => {
                             <li onClick={() => { navigate('/reservations'); closeSidebar(); }}>Gerir Reservas</li>
                             <li>Gerir Utilizadores</li>
                             <li>Gerir Salas</li>
-                            <li>Gerir Equipamentos</li>
                             <li onClick={() => {navigate('/home'); closeSidebar();}}>Fazer Reserva</li>
                         </> :
                             <>

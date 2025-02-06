@@ -85,7 +85,7 @@ export const fetchExtraByReservation = async (reservationID) => {
         .from('extras')
         .select('*')
         .eq('id_r', reservationID);
-        return error ? { error } : { data };
+    return error ? { error } : { data };
 }
 
 export const updateMissedReservations = async () => {
@@ -104,6 +104,21 @@ export const updateMissedReservations = async () => {
 
     return { data, error };
 };
+
+export const concludeReservation = async () => {
+    const currentDate = new Date().toISOString().split('T')[0];
+    const currentTime = new Date();
+    currentTime.setMinutes(currentTime.getMinutes());
+    const checkTime = currentTime.toLocaleTimeString('pt-PT', { hour12: false }).slice(0, 5);
+    const { data, error } = await supabase
+        .from('reservas')
+        .update({ estado: 'concluida' })
+        .eq('data', currentDate)
+        .lt('h_fim', checkTime)
+        .in('estado', ['ativa'])
+        .select();
+    return { data, error };
+}
 
 export const fetchReservation = async () => {
     const { data, error } = await supabase.from('reservas').select('*');
@@ -140,7 +155,7 @@ export const fetchRoomByReservation = async (reservationID) => {
 };
 
 export const fetchReservationByUser = async (userID) => {
-    const {data, error} = await supabase.from('reservas').select('*').eq('id_u', userID);
+    const { data, error } = await supabase.from('reservas').select('*').eq('id_u', userID);
     return error ? { error } : { data };
 }
 
