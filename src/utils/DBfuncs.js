@@ -72,6 +72,17 @@ export const login = async (formData) => {
     return { data: session };
 };
 
+export const fetchUserByReservation = async () => {
+    const { data, error } = await supabase
+        .from('reservas')
+        .select(`id, id_u, utilizadores(id, nome)`)
+        // .eq('id', reservationID)
+        // .single();
+
+    return error ? { error } : { data };
+};
+
+
 /*****************************************************************************************************/
 /*                                               SALAS                                               */
 /*****************************************************************************************************/

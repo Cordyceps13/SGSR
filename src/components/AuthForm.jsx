@@ -48,7 +48,7 @@ const AuthForm = () => {
             return { error }
         }
         loginUser(data)
-        session.user.tipo ? navigate('/reservations') : navigate('/home');
+        session?.user?.tipo ? navigate('/reservations') : navigate('/home');
     };
 
     return (

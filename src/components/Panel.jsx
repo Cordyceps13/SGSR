@@ -88,7 +88,7 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                 reservation.data === formData.data &&
                 formData.horaInicio < reservation.h_fim &&
                 formData.horaFim > reservation.h_inicio &&
-                reservation.estado === 'cancelada';
+                !reservation.estado === 'cancelada';
         });
 
         if (!isAvailable) {
@@ -340,7 +340,7 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                 }
             }
             alert('Reserva Alterada com sucesso!');
-            navigate(goTo)
+            navigate(session.user.tipo ? '/reservations' : goTo)
 
         } catch (error) {
             console.error('Erro ao inserir:', error.message);
@@ -353,7 +353,8 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
         if (error) throw error;
         alert('Reserva confirmada com sucesso!');
         navigate('/reservations');
-    }
+    };
+
     const handleCancel = async (id) => {
         const { data, error } = await supabase.from('reservas').update({ estado: 'cancelada' }).eq('id', id);
         if (error) {
@@ -363,7 +364,7 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
         alert('Reserva cancelada com sucesso!');
         navigate('/reservations');
         return { data };
-    }
+    };
 
 
     return (
@@ -428,22 +429,22 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                             <label htmlFor="horaFim">Hora fim</label>
                             <input readOnly={!edit} id='hora-fim' name="horaFim" type="time" value={formData.horaFim} onChange={handleOnChange} />
                             <label htmlFor="num_pessoas">Número de participantes</label>
-                            <input readOnly={details} id='num_pessoas' name="num_pessoas" type="number" onBlur={(e) => validarNumero(e)} value={formData.num_pessoas} onChange={handleOnChange} min={1} max={capacidade} required />
+                            <input readOnly={!edit} id='num_pessoas' name="num_pessoas" type="number" onBlur={(e) => validarNumero(e)} value={formData.num_pessoas} onChange={handleOnChange} min={1} max={capacidade} required />
                         </div>
                         <hr className='separador' />
                         <div className="panel-right">
                             <h2>Opcional</h2>
                             <label htmlFor="motivo">Motivo</label>
-                            <input readOnly={details} id='motivo' name="motivo" type="text" value={formData.motivo ? formData.motivo : motivo || ''} onChange={handleOnChange} />
+                            <input readOnly={!edit} id='motivo' name="motivo" type="text" value={formData.motivo ? formData.motivo : motivo || ''} onChange={handleOnChange} />
                             <label htmlFor="descricao">Descricao</label>
-                            <input readOnly={details} id='descricao' name="descricao" type="text" value={descricao ? descricao : formData.descricao} onChange={handleOnChange} />
+                            <input readOnly={!edit} id='descricao' name="descricao" type="text" value={descricao ? descricao : formData.descricao} onChange={handleOnChange} />
                             <h2>{`Extras (snacks/equipamentos)`}</h2>
                             {extras.map((extra, index) => (
                                 <div className='extra' ref={index === extras.length - 1 ? lastExtraRef : null} key={index}>
                                     <label htmlFor={`descricao_extra_${index}`}>Extra</label>
-                                    <input readOnly={details} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={(details && !edit)} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
                                     <label htmlFor={`extra_qt_${index}`}>Quantidade</label>
-                                    <input readOnly={details} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={(details && !edit)} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
                                 </div>
                             ))}
                             {!details &&
@@ -467,18 +468,13 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                     </form>
                 </div>
                 <div className="btns">
-                    {edit && <button id='no' onClick={() => { window.confirm('Pretende cancelar a edição da reserva?') && navigate(goTo) }}>Cancelar</button>}
-                    {details ?
-                        <>
-                            <button id='no' onClick={() => { window.confirm('Pretende alterar o estado desta reserva para "Cancelada"?') && handleCancel(id_res) }}>Cancelar</button>
-                            <button id='yes' onClick={() => { window.confirm(`'Pretende alterar o estado desta reserva para "Confirmada"?`) && confirm(id_res) }}>Confirmar</button>
-                        </>
-                        :
-                        <>
+                    {edit && <button id='no' onClick={() => { window.confirm('Pretende cancelar a edição da reserva?') && navigate(session.user.tipo ? '/reservations' : goTo) }}>Cancelar</button>}
+                    <>
+                        {!edit &&
                             <button id='no' onClick={() => { window.confirm(`Pretende cancelar a reserva?`) && navigate('/home') }}>Cancelar</button>
-                            <button id='yes' type='submit' onClick={!edit ? handleSubmit : () => handleEdit(id_res)}>Submeter</button>
-                        </>
-                    }
+                        }
+                        <button id='yes' type='submit' onClick={edit ? () => handleEdit(id_res) : () => handleSubmit}>Submeter</button>
+                    </>
                 </div>
 
                 {session.user.tipo &&

@@ -9,6 +9,9 @@ import { Booking } from './pages/Booking.jsx';
 import { Reservations } from './pages/Reservations.jsx';
 import { EditReservation } from './components/EditReservation.jsx';
 import { Details } from './pages/Details.jsx';
+// import { UserManagement } from './pages/UserManagement.jsx';
+import UserManagement  from './pages/UserManagement.jsx';
+
 
 
 const PrivateRoute = ({ children }) => {
@@ -42,7 +45,6 @@ const PrivateRoute = ({ children }) => {
     return () => clearInterval(interval);
   }, []);
 
-
   useEffect(() => {
     if (session.user) {
       loadUserTheme(session.user.id);
@@ -64,6 +66,7 @@ const App = () => {
         <Route path='/reservations' element={<PrivateRoute><Reservations /></PrivateRoute>} />
         <Route path='/editReservation' element={<PrivateRoute><EditReservation /></PrivateRoute>} />
         <Route path='/details' element={<PrivateRoute><Details /></PrivateRoute>} />
+        <Route path='/userManagement' element={<PrivateRoute><UserManagement /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )
