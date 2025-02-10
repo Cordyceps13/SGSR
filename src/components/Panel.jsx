@@ -422,16 +422,16 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                         <div className="panel-right">
                             <h2>Opcional</h2>
                             <label htmlFor="motivo">Motivo</label>
-                            <input readOnly={!edit} id='motivo' name="motivo" type="text" value={formData.motivo ? formData.motivo : motivo || ''} onChange={handleOnChange} />
+                            <input readOnly={(session.user.tipo && !details && edit)} id='motivo' name="motivo" type="text" value={formData.motivo ? formData.motivo : motivo || ''} onChange={handleOnChange} />
                             <label htmlFor="descricao">Descricao</label>
-                            <input readOnly={!edit} id='descricao' name="descricao" type="text" value={descricao ? descricao : formData.descricao} onChange={handleOnChange} />
+                            <input readOnly={(session.user.tipo && !details && edit)} id='descricao' name="descricao" type="text" value={ formData.descricao ? formData.descricao : descricao } onChange={handleOnChange} />
                             <h2>{`Extras (snacks/equipamentos)`}</h2>
                             {extras.map((extra, index) => (
                                 <div className='extra' ref={index === extras.length - 1 ? lastExtraRef : null} key={index}>
                                     <label htmlFor={`descricao_extra_${index}`}>Extra</label>
-                                    <input readOnly={!edit} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={(session.user.tipo && !details && edit)} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
                                     <label htmlFor={`extra_qt_${index}`}>Quantidade</label>
-                                    <input readOnly={!edit} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={(session.user.tipo && !details && edit)} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
                                 </div>
                             ))}
                             {!details &&

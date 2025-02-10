@@ -117,8 +117,6 @@ export const ReservationList = ({ title = '' }) => {
         setSelected(selected === value ? null : value);
     };
     const username = Array.isArray(users) ? users.find(user => user.id === userID)?.nome : 'MANASNDOANSD';
-
-
     const handleClick = (
         id,
         foto,
