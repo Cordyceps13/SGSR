@@ -23,7 +23,6 @@ export const createUser = async (formData) => {
     alert('Conta criada com sucesso');
     return { data };
 };
-
 export const fetchUser = async () => {
     const session = JSON.parse(localStorage.getItem('session'));
     const { data: userData, error: userError } = await supabase.from('utilizadores').select('*').eq('email', session.user.email).single();
@@ -37,8 +36,7 @@ export const fetchUser = async () => {
     }
     return { data: userData }
 };
-
-export const deleteUser = async (id, username) => {
+export const deleteUser = async (id) => {
     const confirmDelete = window.confirm("Tem certeza de que deseja apagar este utilizador?");
     if (!confirmDelete) return;
 
@@ -47,10 +45,23 @@ export const deleteUser = async (id, username) => {
     if (error) {
         return { error };
     }
-    alert(`Utilizador ${username} excluído da base de dados`);
+    alert(`Utilizador excluído da base de dados`);
     return { data };
 };
+export const updateUser = async (userId, userData) => {
+    const { data, error } = await supabase
+        .from('utilizadores')
+        .update({
+            nome: userData.name,
+            tipo: userData.tipo
+        })
+        .eq('id', userId);
 
+    if (error) {
+        return { error };
+    }
+    return { data };
+};
 export const login = async (formData) => {
     const { data: user, error } = await supabase.from('utilizadores').select('*').eq('email', formData.email).single();
 
@@ -71,26 +82,13 @@ export const login = async (formData) => {
     alert(`Bem vind@ ${session.user.nome}`)
     return { data: session };
 };
-
-export const fetchUserByReservation = async () => {
-    const { data, error } = await supabase
-        .from('reservas')
-        .select(`id, id_u, utilizadores(id, nome)`)
-        // .eq('id', reservationID)
-        // .single();
-
-    return error ? { error } : { data };
-};
-
-
 /*****************************************************************************************************/
-/*                                               SALAS                                               */
+/*                                       SALAS/RESERVAS                                              */
 /*****************************************************************************************************/
 export const fetchRoom = async () => {
     const { data, error } = await supabase.from('salas').select('*');
     return error ? { error } : { data };
 }
-
 export const fetchExtraByReservation = async (reservationID) => {
     const { data, error } = await supabase
         .from('extras')
@@ -98,7 +96,6 @@ export const fetchExtraByReservation = async (reservationID) => {
         .eq('id_r', reservationID);
     return error ? { error } : { data };
 }
-
 export const updateMissedReservations = async () => {
     const currentDate = new Date().toISOString().split('T')[0];
     const currentTime = new Date();
@@ -115,7 +112,6 @@ export const updateMissedReservations = async () => {
 
     return { data, error };
 };
-
 export const concludeReservation = async () => {
     const currentDate = new Date().toISOString().split('T')[0];
     const currentTime = new Date();
@@ -130,12 +126,10 @@ export const concludeReservation = async () => {
         .select();
     return { data, error };
 }
-
 export const fetchReservation = async () => {
     const { data, error } = await supabase.from('reservas').select('*');
     return error ? { error } : { data };
 }
-
 export const fetchRoomByReservation = async (reservationID) => {
     try {
         // Buscar as reservas com a chave estrangeira da sala
@@ -164,12 +158,10 @@ export const fetchRoomByReservation = async (reservationID) => {
         return { error: err.message };
     }
 };
-
 export const fetchReservationByUser = async (userID) => {
     const { data, error } = await supabase.from('reservas').select('*').eq('id_u', userID);
     return error ? { error } : { data };
 }
-
 /*****************************************************************************************************/
 /*                                               MISC                                                */
 /*****************************************************************************************************/
@@ -184,7 +176,6 @@ export const updateUserTheme = async (id, tema) => {
     console.log('Tema atualizado com sucesso!');
     return true;
 }
-
 export const loadUserTheme = async (userId) => {
     const { data, error } = await supabase
         .from('utilizadores')

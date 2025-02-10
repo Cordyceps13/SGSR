@@ -3,7 +3,7 @@ import '../css/Panel.modules.css'
 import { supabase } from '../services/DB_API';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../services/AuthProvider'
-import { fetchExtraByReservation, fetchReservation, fetchRoom } from '../utils/DBfuncs';
+import { fetchExtraByReservation, fetchReservation, fetchRoom, fetchUser } from '../utils/DBfuncs';
 
 
 export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
@@ -29,8 +29,10 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
         descricao,
         descricao_extra,
         extra_qt,
+        username,
         extra,
         extras: existingExtras,
+        comentario,
     } = location.state || {}
     const { session } = useAuth();
 
@@ -50,7 +52,7 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
         num_pessoas: minCapacity || capacidade || 0,
         motivo: motivo || '',
         descricao: descricao || '',
-        comentario: '',
+        comentario: comentario || '',
         extra: Boolean(existingExtras?.length > 0),
         estado: 'pendente',
         check_in: false,
@@ -60,7 +62,6 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
     });
     const selectedDateTime = new Date(`${formData.data}T${formData.horaInicio}`);
     const currentDateTime = new Date();
-
 
     useEffect(() => {
         const loadReservations = async () => {
@@ -138,7 +139,6 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
 
         if (selectedDateTime < currentDateTime) {
             alert('Deve escolher uma hora de início superior à hora atual no painel anterior');
@@ -348,25 +348,6 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
         }
     };
 
-    const confirm = async (id_res) => {
-        const { data, error } = await supabase.from('reservas').update({ estado: 'confirmada' }).eq('id', id_res).select('*');
-        if (error) throw error;
-        alert('Reserva confirmada com sucesso!');
-        navigate('/reservations');
-    };
-
-    const handleCancel = async (id) => {
-        const { data, error } = await supabase.from('reservas').update({ estado: 'cancelada' }).eq('id', id);
-        if (error) {
-            console.error('Erro ao cancelar reserva:', error);
-            return;
-        }
-        alert('Reserva cancelada com sucesso!');
-        navigate('/reservations');
-        return { data };
-    };
-
-
     return (
         <>
             {(aviso && !session.user.tipo) && <p className='aviso'>{msg}</p>}
@@ -422,14 +403,20 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                     <form onSubmit={handleSubmit}>
                         <div className="panel-left">
                             <h2>Informações da reserva</h2>
+                            {(session.user.tipo && details) &&
+                                <>
+                                    <label htmlFor="colaborador">Colaborador</label>
+                                    <input readOnly id='colaborador' name="colaborador" type="text" value={username} />
+                                </>
+                            }
                             <label htmlFor="data">Data da reserva</label>
-                            <input readOnly={!edit} id='data' name="data" type="date" value={formData.data} onChange={handleOnChange} />
+                            <input readOnly id='data' name="data" type="date" value={formData.data} onChange={handleOnChange} />
                             <label htmlFor="horaInicio">Hora início</label>
-                            <input readOnly={!edit} id='hora-inicio' name="horaInicio" type="time" value={formData.horaInicio} onChange={handleOnChange} />
+                            <input readOnly id='hora-inicio' name="horaInicio" type="time" value={formData.horaInicio} onChange={handleOnChange} />
                             <label htmlFor="horaFim">Hora fim</label>
-                            <input readOnly={!edit} id='hora-fim' name="horaFim" type="time" value={formData.horaFim} onChange={handleOnChange} />
+                            <input readOnly id='hora-fim' name="horaFim" type="time" value={formData.horaFim} onChange={handleOnChange} />
                             <label htmlFor="num_pessoas">Número de participantes</label>
-                            <input readOnly={!edit} id='num_pessoas' name="num_pessoas" type="number" onBlur={(e) => validarNumero(e)} value={formData.num_pessoas} onChange={handleOnChange} min={1} max={capacidade} required />
+                            <input readOnly id='num_pessoas' name="num_pessoas" type="number" onBlur={(e) => validarNumero(e)} value={formData.num_pessoas} onChange={handleOnChange} min={1} max={capacidade} required />
                         </div>
                         <hr className='separador' />
                         <div className="panel-right">
@@ -442,9 +429,9 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                             {extras.map((extra, index) => (
                                 <div className='extra' ref={index === extras.length - 1 ? lastExtraRef : null} key={index}>
                                     <label htmlFor={`descricao_extra_${index}`}>Extra</label>
-                                    <input readOnly={(details && !edit)} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={!edit} id={`descricao_extra_${index}`} name="descricao_extra" type="text" value={extra.descricao_extra} onChange={(e) => handleChange(index, e)} />
                                     <label htmlFor={`extra_qt_${index}`}>Quantidade</label>
-                                    <input readOnly={(details && !edit)} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
+                                    <input readOnly={!edit} id={`extra_qt_${index}`} name="extra_qt" type="number" value={extra.extra_qt} onChange={(e) => handleChange(index, e)} />
                                 </div>
                             ))}
                             {!details &&
@@ -463,7 +450,13 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                                     </div>
                                 </div>
                             }
-
+                            {(session.user.tipo && details) &&
+                                <>
+                                    <h2>{`Adicionar Comentário`}</h2>
+                                    <label htmlFor='comentario'>Adicionar Comentário</label>
+                                    <input type='text' id='comentario' name='comentario' value={formData.comentario ? formData.comentario : comentario } onChange={handleOnChange} />
+                                </>
+                            }
                         </div>
                     </form>
                 </div>
@@ -473,13 +466,13 @@ export const Panel = ({ goTo = '/home', edit = false, details = false }) => {
                         {!edit &&
                             <button id='no' onClick={() => { window.confirm(`Pretende cancelar a reserva?`) && navigate('/home') }}>Cancelar</button>
                         }
-                        <button id='yes' type='submit' onClick={edit ? () => handleEdit(id_res) : () => handleSubmit}>Submeter</button>
+                        <button id='yes' type='submit' onClick={edit ? () => handleEdit(id_res) : handleSubmit}>Submeter</button>
                     </>
                 </div>
 
                 {session.user.tipo &&
                     <div className='back'>
-                        <svg onClick={() => navigate('/reservations')} id='back-arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512">
+                        <svg onClick={details ? () => navigate('/reservations') : () => navigate('/home')} id='back-arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512">
                             <path fill="currentColor" d="M10.6,12.71a1,1,0,0,1,0-1.42l4.59-4.58a1,1,0,0,0,0-1.42,1,1,0,0,0-1.41,0L9.19,9.88a3,3,0,0,0,0,4.24l4.59,4.59a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" />
                         </svg>
                     </div>

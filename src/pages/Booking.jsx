@@ -16,7 +16,7 @@ export const Booking = () => {
         <>
             <Header title="Reservar" openSidebar={toggleSidebar} />
             <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar}></Sidebar>
-            <Panel goTo={'/home'} edit={session.user.tipo && true} />
+            <Panel goTo={'/home'} />
 
         </>
     )

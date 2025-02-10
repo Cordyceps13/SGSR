@@ -1,3 +1,4 @@
+import EditForm from "../components/EditForm";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { UsersList } from "../components/UsersList";
@@ -15,6 +16,7 @@ const UserManagement = () => {
         <>
             <Header title="Gerir Utilizadores" openSidebar={toggleSidebar} />
             <UsersList />
+            {/* <EditForm/> */}
             <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar}></Sidebar>
         </>
     )

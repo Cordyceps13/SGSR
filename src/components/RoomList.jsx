@@ -144,16 +144,16 @@ const RoomList = () => {
         <>
             <div className="list-container">
                 <h1>{'Iniciar Reserva'}</h1>
-                    <div className="filters">
-                        <input title="Intoduzir número de pessoas" type="number" placeholder="Num Pessoas" onChange={(e) => (setMinCapacity(e.target.value))} />
-                        <input title="Escolher data" type="date" id="date" min={dataAtual} value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
-                        <div>
-                            <p>Inicio</p>
-                            <input onChange={(e) => setStartTime(e.target.value)} title="Escolher hora de início" type="time" value={startTime} />
-                            <p>Fim</p>
-                            <input onChange={(e) => setEndTime(e.target.value)} title="Escolher hora de término" type="time" value={endTime} />
-                        </div>
+                <div className="filters">
+                    <input title="Intoduzir número de pessoas" type="number" placeholder="Num Pessoas" onChange={(e) => (setMinCapacity(e.target.value))} />
+                    <input title="Escolher data" type="date" id="date" min={dataAtual} value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                    <div>
+                        <p>Inicio</p>
+                        <input onChange={(e) => setStartTime(e.target.value)} title="Escolher hora de início" type="time" value={startTime} />
+                        <p>Fim</p>
+                        <input onChange={(e) => setEndTime(e.target.value)} title="Escolher hora de término" type="time" value={endTime} />
                     </div>
+                </div>
                 <div className=" item-list">
                     <div className="list-title-container">
                         {/* {notification > 0 && <Notification notification={notification} className='item-notification' />} */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import '../css/RoomList.modules.css';
-import { fetchExtraByReservation, fetchReservation, fetchReservationByUser, fetchRoomByReservation, fetchUser, fetchUserByReservation } from "../utils/DBfuncs";
+import { fetchExtraByReservation, fetchReservation, fetchReservationByUser, fetchRoomByReservation, fetchUser } from "../utils/DBfuncs";
 import { useAuth } from "../services/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/DB_API";
@@ -65,8 +65,6 @@ export const ReservationList = ({ title = '' }) => {
         loadUsers();
     }, []);
 
-    // console.log(room);
-
     useEffect(() => {
         setLoading(true);
         const loadRooms = async () => {
@@ -118,6 +116,8 @@ export const ReservationList = ({ title = '' }) => {
     const toggleSelect = (value) => {
         setSelected(selected === value ? null : value);
     };
+    
+    const username = loading ? '' : users.find(user => user.id === userID)?.nome;
 
     const handleClick = (
         id,
@@ -135,7 +135,8 @@ export const ReservationList = ({ title = '' }) => {
         descricao,
         descricao_extra,
         extra_qt,
-        extras
+        extras,
+        username
 
     ) => {
         navigate('/editReservation', {
@@ -156,7 +157,8 @@ export const ReservationList = ({ title = '' }) => {
                 descricao,
                 descricao_extra,
                 extra_qt,
-                extras
+                extras,
+                username
             }
         });
     };
@@ -219,8 +221,11 @@ export const ReservationList = ({ title = '' }) => {
         descricao,
         descricao_extra,
         extra_qt,
+        comentario,
         extra,
     ) => {
+
+        const reservationUsername = users.find(user => user.id === reservations.find(res => res.id === id_res)?.id_u)?.nome;
         navigate('/details', {
             state: {
                 id_res,
@@ -237,6 +242,8 @@ export const ReservationList = ({ title = '' }) => {
                 descricao,
                 descricao_extra,
                 extra_qt,
+                username: reservationUsername,
+                comentario,
                 extra,
             }
         });
@@ -304,7 +311,9 @@ export const ReservationList = ({ title = '' }) => {
                                         room.reservation.descricao,
                                         room.reservation.descricao_extra,
                                         room.reservation.extra_qt,
-                                        room.reservation.extra
+                                        room.reservation.comentario,
+                                        username,
+                                        room.reservation.extra,
                                     )) : undefined} >
                                         <img title={room.nome} src={`../src/assets/imgs/${room.foto}`} alt={room.nome || 'Imagem indisponível'} />
                                         <div className="details">
@@ -381,7 +390,7 @@ export const ReservationList = ({ title = '' }) => {
                                                     </svg>
                                                 </div>
                                             }
-                                            {((room.reservation.estado === 'pendente' || room.reservation.estado === 'confirmada') && !session.user.tipo ) &&
+                                            {((room.reservation.estado === 'pendente' || room.reservation.estado === 'confirmada') && !session.user.tipo) &&
 
 
                                                 <div title="Editar reserva" className="edit" onClick={() => handleClick(
@@ -401,7 +410,9 @@ export const ReservationList = ({ title = '' }) => {
                                                     room.reservation.descricao,
                                                     room.reservation.descricao_extra,
                                                     room.reservation.extra_qt,
-                                                    extras.filter(extra => extra.reservation.id === room.reservation.id)
+                                                    room.reservation.comentario,
+                                                    username,
+                                                    extras.filter(extra => extra.reservation.id === room.reservation.id),
                                                 )}>
                                                     <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
                                                         <path d="M22.987,5.452c-.028-.177-.312-1.767-1.464-2.928-1.157-1.132-2.753-1.412-2.931-1.44-.237-.039-.479,.011-.682,.137-.071,.044-1.114,.697-3.173,2.438,1.059,.374,2.428,1.023,3.538,2.109,1.114,1.09,1.78,2.431,2.162,3.471,1.72-2.01,2.367-3.028,2.41-3.098,.128-.205,.178-.45,.14-.689Z" />
@@ -439,7 +450,9 @@ export const ReservationList = ({ title = '' }) => {
                                 room.reservation.descricao,
                                 room.reservation.descricao_extra,
                                 room.reservation.extra_qt,
-                                room.reservation.extra
+                                room.reservation.comentario,
+                                username,
+                                room.reservation.extra,
                             )) : undefined} >
                                 <img title={room.nome} src={`../src/assets/imgs/${room.foto}`} alt={room.nome || 'Imagem indisponível'} />
                                 <div className="details">
@@ -535,7 +548,9 @@ export const ReservationList = ({ title = '' }) => {
                                             room.reservation.descricao,
                                             room.reservation.descricao_extra,
                                             room.reservation.extra_qt,
-                                            extras.filter(extra => extra.reservation.id === room.reservation.id)
+                                            room.reservation.comentario,
+                                            username,
+                                            extras.filter(extra => extra.reservation.id === room.reservation.id),
                                         )}>
                                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
                                                 <path d="M22.987,5.452c-.028-.177-.312-1.767-1.464-2.928-1.157-1.132-2.753-1.412-2.931-1.44-.237-.039-.479,.011-.682,.137-.071,.044-1.114,.697-3.173,2.438,1.059,.374,2.428,1.023,3.538,2.109,1.114,1.09,1.78,2.431,2.162,3.471,1.72-2.01,2.367-3.028,2.41-3.098,.128-.205,.178-.45,.14-.689Z" />

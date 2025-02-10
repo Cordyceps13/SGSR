@@ -190,6 +190,15 @@
     opacity: 1;
 }
 
-.no svg{
+.no svg,
+.cancel svg{
+    height: 24px;
     fill: var(--cancel);
+}
+
+.user-info{
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+    margin-right: 30px;
 }

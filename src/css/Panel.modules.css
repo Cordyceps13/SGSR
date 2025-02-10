@@ -91,6 +91,8 @@
     display: flex;
     flex-direction: column;
     width: 300px;
+    max-height: 350px;
+    overflow: auto;
 }
 
 .panel-right {
