@@ -11,6 +11,7 @@ import { EditReservation } from './components/EditReservation.jsx';
 import { Details } from './pages/Details.jsx';
 // import { UserManagement } from './pages/UserManagement.jsx';
 import UserManagement  from './pages/UserManagement.jsx';
+import RoomManagement from './pages/RoomManagement.jsx';
 
 
 
@@ -67,6 +68,7 @@ const App = () => {
         <Route path='/editReservation' element={<PrivateRoute><EditReservation /></PrivateRoute>} />
         <Route path='/details' element={<PrivateRoute><Details /></PrivateRoute>} />
         <Route path='/userManagement' element={<PrivateRoute><UserManagement /></PrivateRoute>} />
+        <Route path='/roomManagement' element={<PrivateRoute><RoomManagement /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )

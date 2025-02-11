@@ -162,6 +162,17 @@ export const fetchReservationByUser = async (userID) => {
     const { data, error } = await supabase.from('reservas').select('*').eq('id_u', userID);
     return error ? { error } : { data };
 }
+export const deleteRoom = async (id) => {
+    const confirmDelete = window.confirm("Tem certeza de que deseja apagar esta sala?");
+    if (!confirmDelete) return;
+    
+    const { data, error } = await supabase.from('salas').delete().eq('id', id);
+    if (error) {
+        return { error };
+    }
+    alert(`Sala eliminada com sucesso!`);
+    return { data };
+}
 /*****************************************************************************************************/
 /*                                               MISC                                                */
 /*****************************************************************************************************/

@@ -65,7 +65,7 @@ const Sidebar = ({ isSidebarOpen, closeSidebar }) => {
                         {session && userData?.tipo ? <>
                             <li onClick={() => { navigate('/reservations'); closeSidebar(); }}>Gerir Reservas</li>
                             <li  onClick={() => {navigate('/userManagement'); closeSidebar();}}>Gerir Utilizadores</li>
-                            <li>Gerir Salas</li>
+                            <li onClick={() => {navigate('/roomManagement'); closeSidebar();}}>Gerir Salas</li>
                             <li onClick={() => {navigate('/home'); closeSidebar();}}>Fazer Reserva</li>
                         </> :
                             <>

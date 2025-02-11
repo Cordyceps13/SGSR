@@ -21,7 +21,7 @@
     max-height: 600px;
     background: var(--front);
     border-radius: 10px;
-    padding: 30px 30px 10px 30px;
+    padding: 40px 30px 10px 30px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
